@@ -1,0 +1,27 @@
+div.container {
+    display: flex;
+}
+
+div#preview {
+    width: 1000px;
+}
+
+div#editor {
+    flex-grow: 1;
+    display: none;
+}
+
+.scaler {
+    transform: scale(0.25);
+    transform-origin: top left;
+    position: relative;
+
+}
+
+canvas {
+    display: none;
+}
+
+textarea {
+    width: 100%;
+}
