@@ -8,8 +8,8 @@ var img;
 
 var ta = document.getElementById('data');
 ta.addEventListener('keyup', draw);
-
-
+document.getElementById('fontsize').addEventListener('change', draw);
+canvas.addEventListener("mousedown", getPosition, false);
 document.getElementById('jpg').addEventListener('click', function () {
     this.href = canvas.toDataURL('image/jpg');
 }, false);
@@ -18,6 +18,11 @@ document.getElementById('png').addEventListener('click', function () {
 }, false);
 
 
+/**
+ * Handles the image selection event
+ *
+ * @param {Event} e
+ */
 function handleImage(e) {
     var reader = new FileReader();
     reader.onload = function (event) {
@@ -27,9 +32,8 @@ function handleImage(e) {
             canvas.height = img.height;
 
             // calculate scaling
-            var max = Math.max(img.width, img.height);
-            if (max > WIDTH) {
-                scale = WIDTH / max;
+            if (img.width > WIDTH) {
+                scale = WIDTH / img.width;
             }
             canvas.parentNode.style.transform = 'scale(' + scale + ')'; // scale down
             scale = 1 / scale; // from now on we need to scale up
@@ -44,30 +48,15 @@ function handleImage(e) {
     reader.readAsDataURL(e.target.files[0]);
 }
 
+/**
+ * redraws the image from the current text data
+ */
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(img, 0, 0);
 
-
-    getdata();
-
-    ctx.beginPath();
-    ctx.arc(600, 600, 70, 0, 2 * Math.PI, false);
-    ctx.fillStyle = 'green';
-    ctx.fill();
-    ctx.lineWidth = 5;
-    ctx.strokeStyle = '#003300';
-    ctx.stroke();
-
-
-    makeLabel(600, 600, 'Hello World', 'right');
-
-}
-
-function getdata() {
     var lines = ta.value.split('\n');
     lines = lines.map(Function.prototype.call, String.prototype.trim);
-
     var re = /^([<>=])?(\d+),(\d+)\s(.+)$/;
     for (var i = 0; i < lines.length; i++) {
         var match = lines[i].match(re);
@@ -75,13 +64,13 @@ function getdata() {
             var align = 'left';
             if (match[1] == '>') align = 'right';
             if (match[1] == '=') align = 'center';
-
             makeLabel(match[2], match[3], match[4].trim(), align);
         }
     }
 }
 
 /**
+ * Creates a single lable at the given position
  *
  * @param {int} x
  * @param {int} y
@@ -89,20 +78,23 @@ function getdata() {
  * @param {string} align 'left'|'center'|'right'
  */
 function makeLabel(x, y, text, align) {
-    var fontsize = Math.ceil(20 * scale);
-    var padding = Math.ceil(2 * scale);
+    var fontsize = parseInt(document.getElementById('fontsize').value, 10);
+    if (!fontsize) fontsize = 20;
+    fontsize = Math.ceil(fontsize * scale);
+    var padding = Math.ceil(fontsize / 10 * scale);
 
     // set up and measure font
-    ctx.font = fontsize + 'px sans-serif';
+    ctx.font = fontsize + 'px Roboto,sans-serif';
     ctx.textBaseline = 'top';
     var box = ctx.measureText(text);
+    box.height = fontsize * 1.2; //assuming 1.2em lineheight
 
     if (align == 'right') x = x - box.width;
     if (align == 'center') x = Math.round(x - box.width / 2);
 
     // draw box
     ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-    ctx.fillRect(x - padding, y - padding, box.width + padding * 2, fontsize + padding * 2);
+    ctx.fillRect(x - padding, y - padding, box.width + padding * 2, box.height + padding * 2);
 
     // draw text
     ctx.fillStyle = '#000000';
@@ -111,8 +103,11 @@ function makeLabel(x, y, text, align) {
 }
 
 
-canvas.addEventListener("mousedown", getPosition, false);
-
+/**
+ * Gets the mouse click position and adjust the current row
+ *
+ * @param {Event} event
+ */
 function getPosition(event) {
     var rect = canvas.getBoundingClientRect();
     var x = event.clientX - rect.left;
