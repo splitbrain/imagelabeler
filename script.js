@@ -11,7 +11,7 @@ ta.addEventListener('keyup', draw);
 document.getElementById('fontsize').addEventListener('change', draw);
 canvas.addEventListener("mousedown", getPosition, false);
 document.getElementById('jpg').addEventListener('click', function (e) {
-    download(e, this, 'image/jpg', 'image.jpg');
+    download(e, this, 'image/jpeg', 'image.jpg');
 }, false);
 document.getElementById('png').addEventListener('click', function (e) {
     download(e, this, 'image/png', 'image.png');
