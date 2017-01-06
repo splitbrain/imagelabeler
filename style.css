@@ -3,7 +3,7 @@ body {
 }
 
 div.container {
-    display: flex;
+    position: relative;
 }
 
 div#preview {
@@ -11,10 +11,11 @@ div#preview {
 }
 
 div#editor {
-    flex-grow: 1;
     display: none;
     padding-left: 2em;
     position: fixed;
+    right: 100px;
+    top: 100px;
 }
 
 .scaler {
