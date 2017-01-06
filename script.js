@@ -10,12 +10,39 @@ var ta = document.getElementById('data');
 ta.addEventListener('keyup', draw);
 document.getElementById('fontsize').addEventListener('change', draw);
 canvas.addEventListener("mousedown", getPosition, false);
-document.getElementById('jpg').addEventListener('click', function () {
-    this.href = canvas.toDataURL('image/jpg');
+document.getElementById('jpg').addEventListener('click', function (e) {
+    download(e, this, 'image/jpg', 'image.jpg');
 }, false);
-document.getElementById('png').addEventListener('click', function () {
-    this.href = canvas.toDataURL('image/png');
+document.getElementById('png').addEventListener('click', function (e) {
+    download(e, this, 'image/png', 'image.png');
 }, false);
+
+/**
+ * Triggers the download
+ *
+ * @param {Event} e the click event
+ * @param {Node} a the clicked link element
+ * @param {string} type the mime type of the download
+ * @param {string} name the file name to suggest
+ */
+function download(e, a, type, name) {
+    // download by data url happens straight away
+    if (! canvas.toBlob) {
+        a.href = canvas.toDataURL(type);
+        a.download = name;
+        return;
+    }
+
+    // download by blob is triggered through a second pseudo link after the blob was created
+    e.preventDefault();
+    e.stopPropagation();
+    canvas.toBlob(function(blob){
+        var link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = name;
+        link.click();
+    }, type);
+}
 
 
 /**
